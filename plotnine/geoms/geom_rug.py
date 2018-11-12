@@ -25,7 +25,7 @@ class geom_rug(geom):
     DEFAULT_AES = {'alpha': 1, 'color': 'black', 'size': 0.5,
                    'linetype': 'solid'}
     DEFAULT_PARAMS = {'stat': 'identity', 'position': 'identity',
-                      'na_rm': False, 'sides': 'bl'}
+                      'na_rm': False, 'sides': 'bl', 'width': 1.0}
     legend_geom = 'path'
 
     @staticmethod
@@ -52,8 +52,8 @@ class geom_rug(geom):
         rugs = []
         xmin, xmax = panel_params['x_range']
         ymin, ymax = panel_params['y_range']
-        xheight = (xmax-xmin)*0.03
-        yheight = (ymax-ymin)*0.03
+        xheight = (xmax-xmin)*0.03 * params['width']
+        yheight = (ymax-ymin)*0.03 * params['width']
 
         if has_x:
             if 'b' in sides:
