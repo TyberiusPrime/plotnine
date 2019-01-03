@@ -39,11 +39,11 @@ class annotation_stripes(annotate):
             if ((not isinstance(kwargs['direction'], str))
                     or (kwargs['direction'] not in allowed)):
                 raise ValueError("direction must be one of %s" % (allowed, ))
-        self._annotation_geom = _geom_annotation_stripes(
+        self._annotation_geom = _geom_stripes(
             **kwargs)
 
 
-class _geom_annotation_stripes(geom):
+class _geom_stripes(geom):
 
     DEFAULT_AES = {}
     REQUIRED_AES = set()
