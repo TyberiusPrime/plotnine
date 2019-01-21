@@ -479,9 +479,6 @@ class scale_continuous(scale):
         # Make sure we have a transform.
         self.trans = kwargs.pop('trans', self._trans)
 
-        with suppress(KeyError):
-            self.limits = kwargs.pop('limits')
-
         scale.__init__(self, **kwargs)
 
     @property
@@ -493,24 +490,6 @@ class scale_continuous(scale):
         self._trans = gettrans(value)
         self._trans.aesthetic = self.aesthetics[0]
 
-    @scale.limits.setter
-    def limits(self, value):
-        """
-        Limits for the continuous scale
-
-        Notes
-        -----
-        The limits are given in original dataspace
-        but they are stored in transformed space since
-        all computations happen on transformed data. The
-        labeling of the plot axis and the guides are in
-        the original dataspace.
-        """
-        limits = self.trans.transform(value)
-        try:
-            self._limits = np.sort(limits)
-        except TypeError:
-            self._limits = limits
 
     def train(self, x):
         """
