@@ -490,7 +490,6 @@ class scale_continuous(scale):
         self._trans = gettrans(value)
         self._trans.aesthetic = self.aesthetics[0]
 
-
     def train(self, x):
         """
         Train scale
@@ -575,9 +574,10 @@ class scale_continuous(scale):
             major = major.compress(np.isfinite(major))
             minor = self.get_minor_breaks(major, range)
 
+        chosen = (range[0] <= major) & (major <= range[1])
         major = major.compress(
-            (range[0] <= major) & (major <= range[1]))
-        labels = self.get_labels(major)
+            chosen)
+        labels = self.get_labels(major, chosen)
 
         return {'range': range,
                 'labels': labels,
@@ -662,7 +662,7 @@ class scale_continuous(scale):
         else:
             return self.trans.minor_breaks(major, limits)
 
-    def get_labels(self, breaks=None):
+    def get_labels(self, breaks=None, chosen=None):
         """
         Generate labels for the axis or legend
         """
@@ -682,17 +682,14 @@ class scale_continuous(scale):
         elif callable(self.labels):
             labels = self.labels(breaks)
         else:
-            labels = self.labels
+            if chosen is not None:
+                labels = np.array(self.labels)[chosen]
+            else:
+                labels = self.labels
 
         if len(labels) != len(breaks):
-            if not is_waive(self.breaks) and not is_waive(self.labels):
-                raise PlotnineError(
-                    "Breaks and labels are different lengths. "
-                    "Make sure all the breaks you specify are with in "
-                    "the limits.")
-            else:
-                raise PlotnineError(
-                    "Breaks and labels are different lengths")
+            raise PlotnineError(
+                "Breaks and labels are different lengths")
 
         return labels
 
