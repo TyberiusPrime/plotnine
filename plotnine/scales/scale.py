@@ -481,9 +481,6 @@ class scale_continuous(scale):
         # Make sure we have a transform.
         self.trans = kwargs.pop('trans', self._trans)
 
-        with suppress(KeyError):
-            self.limits = kwargs.pop('limits')
-
         scale.__init__(self, **kwargs)
 
     @property
@@ -494,25 +491,6 @@ class scale_continuous(scale):
     def trans(self, value):
         self._trans = gettrans(value)
         self._trans.aesthetic = self.aesthetics[0]
-
-    @scale.limits.setter
-    def limits(self, value):
-        """
-        Limits for the continuous scale
-
-        Notes
-        -----
-        The limits are given in original dataspace
-        but they are stored in transformed space since
-        all computations happen on transformed data. The
-        labeling of the plot axis and the guides are in
-        the original dataspace.
-        """
-        limits = self.trans.transform(value)
-        try:
-            self._limits = np.sort(limits)
-        except TypeError:
-            self._limits = limits
 
     def train(self, x):
         """
@@ -598,9 +576,10 @@ class scale_continuous(scale):
             major = major.compress(np.isfinite(major))
             minor = self.get_minor_breaks(major, range)
 
+        chosen = (range[0] <= major) & (major <= range[1])
         major = major.compress(
-            (range[0] <= major) & (major <= range[1]))
-        labels = self.get_labels(major)
+            chosen)
+        labels = self.get_labels(major, chosen)
 
         return {'range': range,
                 'labels': labels,
@@ -685,7 +664,7 @@ class scale_continuous(scale):
         else:
             return self.trans.minor_breaks(major, limits)
 
-    def get_labels(self, breaks=None):
+    def get_labels(self, breaks=None, chosen=None):
         """
         Generate labels for the axis or legend
         """
@@ -705,17 +684,14 @@ class scale_continuous(scale):
         elif callable(self.labels):
             labels = self.labels(breaks)
         else:
-            labels = self.labels
+            if chosen is not None:
+                labels = np.array(self.labels)[chosen]
+            else:
+                labels = self.labels
 
         if len(labels) != len(breaks):
-            if not is_waive(self.breaks) and not is_waive(self.labels):
-                raise PlotnineError(
-                    "Breaks and labels are different lengths. "
-                    "Make sure all the breaks you specify are with in "
-                    "the limits.")
-            else:
-                raise PlotnineError(
-                    "Breaks and labels are different lengths")
+            raise PlotnineError(
+                "Breaks and labels are different lengths")
 
         return labels
 
