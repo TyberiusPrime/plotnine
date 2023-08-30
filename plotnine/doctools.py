@@ -100,7 +100,7 @@ default, includes any aesthetics that are mapped. If a :class:`bool`, \
 from showing in the legend. e.g :py:`show_legend={'color': False}`, \
 any other aesthetic are included by default.""",
     "raster": """\
-If ``True``, draw onto this layer a raster (bitmap) object even if\
+If ``True``, draw onto this layer a raster (bitmap) object even if \
 the final image is in vector format.""",
 }
 
